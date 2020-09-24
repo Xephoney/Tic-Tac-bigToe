@@ -20,13 +20,14 @@ int main()
     {
         DisplayGrid();
         PlayerSwitch();
-        InputAndExec();
+        /*InputAndExec();
         int x = WinConditionCheck();
         if (x != 2)
         {
             std::cout << "\nPlayer " << players[x] << " wins! Congrats!";
 
         }
+        */
     } while (true);
 }
 
