@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
-#include <vector>
+#include <vector> //This is included for the use of vectors
+#include <time.h> //This is for random number generation
 
 //Here we declare the functions that i will define further down.
 //these functions are tied to the gameplay loop
@@ -8,6 +9,7 @@ void DisplayGrid();
 void InputAndExec();
 void PlayerSwitch();
 int WinConditionCheck();
+void CalculateComputerMove(char);
 
 //These are the main functions between games.
 void GamePvP();
@@ -24,6 +26,8 @@ int playerIndex = 1;
 
 int main()
 {
+    srand(time(NULL));
+
     //Greeting when first running the application
     std::cout << "Welcome to Tic-Tac-(Big)Toe \n";
     MainMenu();
@@ -34,7 +38,7 @@ void MainMenu()
 {
     int answer = NULL;
     std::cout << "What would you like to play? \n";
-    std::cout << " 1 : Player VS Player \n" << " 2 : Player VS Computer \n \n" << " 8 : Exit Game \n";
+    std::cout << " 1 : Player VS Player \n" << " 2 : Player VS CPU \n \n" << " 8 : Exit Game \n";
     std::cout << "Select a gamemode : ";
     std::cin >> answer;
 
@@ -44,7 +48,7 @@ void MainMenu()
     // So instead i just kept to Functions executions.
     // I don't know for sure whether this is the best solution or not, but it works! :D 
 
-
+    //Here i get then input from the player and execute the right code that was selected from the player.
     switch (answer)
     {
     case 0:
@@ -55,9 +59,11 @@ void MainMenu()
         MainMenu();
         break;
     case 1:
+        system("CLS");
         GamePvP();
         break;
     case 2:
+        system("CLS");
         GamePvE();
         break;
     case 8:
@@ -120,9 +126,89 @@ void GamePvP()
 
 void GamePvE()
 {
+
     playerIndex = 0;
     bool GameOver = false;
     moves = 0;
+    grid = { '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+
+    char answer = 'æ';
+    int computer = -1;
+    int player = -1;
+
+    std::cout << "Do you want to be X or O? \n ";
+    std::cout << "X / O : ";
+    std::cin >> answer;
+    answer = toupper(answer);
+    
+    //This is just to make sure that the input is a Char value.
+    //Initial game setup. The player selects their desigered and the cpu gets 
+    if (answer == players[0])
+    {
+        computer = 1;
+        player = 0;
+        std::cout << "Okay, You = X CPU = O \n When you are ready ";
+    }
+    else if (answer == players[1])
+    {
+        computer = 0;
+        player = 1;
+        std::cout << "Okay, CPU = X You = O \n When you are ready ";
+        
+    }
+    else //This is just to remove the possibility of a rogue exec without the right variables.
+    {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        GamePvE();
+        return;
+    }
+
+    system("pause");
+    //This do-while loop goes aslong as GameOver is false.
+    do
+    {
+        DisplayGrid();
+        if (playerIndex == computer)
+        {
+            //this just ends up passing through what character the computer has. 
+            //So it can do the right placement in the grid.
+            CalculateComputerMove(players[computer]);
+        }
+        else
+        {
+            InputAndExec();
+        }
+
+        //This is the section of the gameloop that checks for wins or if the game is a tie.
+        int x = WinConditionCheck();
+        if (x == computer)
+        {
+            //The reason for Display Grid is just to update the display so you could see where the
+            //Where the winning connections were!
+            DisplayGrid();
+            std::cout << "\n [- CPU WON -] ";
+            GameOver = true;
+            system("pause");
+        }
+        else if (x == player)
+        {
+            DisplayGrid();
+            std::cout << "\n [- YOU WON -] ";
+            GameOver = true;
+            system("pause");
+        }
+        else if (moves == 9)
+        {
+            DisplayGrid();
+            std::cout << "\n [- TIE -] \n";
+            GameOver = true;
+            system("pause");
+        }
+
+    } while (!GameOver);
+
+
 
     system("CLS");
     MainMenu();
@@ -139,7 +225,6 @@ void DisplayGrid()
         {
             std::cout << "|" << std::endl;
         }
-        
     }
 }
 void InputAndExec()
@@ -306,4 +391,24 @@ void PlayerSwitch()
         playerIndex = 0;
         break;
     }
+}
+void CalculateComputerMove(char CPUchar)
+{
+    //Just initializing a seed(time) for my random number generator.
+    
+    
+    int selected = (rand() % 8 + 1)-1;
+    if (grid.at(selected) == 'X' || grid.at(selected) == 'O')
+    {
+        CalculateComputerMove(CPUchar);
+        return;
+    }
+    else
+    {
+        grid.at(selected) = CPUchar;
+        moves++;
+        PlayerSwitch();
+        return;
+    }
+
 }
